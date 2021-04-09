@@ -1,0 +1,51 @@
+---
+- name: Install PHP depond pkage
+  yum: name={{ item }} state=installed
+  loop:
+    - libxml2
+    - libxml2-devel
+    - autoconf
+    - libjpeg
+    - libjpeg-devel
+    - libpng
+    - libpng-devel
+    - freetype
+    - freetype-devel
+    - zlib
+    - zlib-devel
+    - glibc
+    - glibc-devel
+    - glib2
+    - glib2-devel
+    - curl-devel
+- name: Copy PHP pkage
+  copy: src=php-{{php_version}}.tar.gz dest=/usr/local/src
+
+#- name: Install PHP
+#  shell: cd /usr/local/src &&
+#           tar zxvf php-{{php_version}}.tar.gz &&
+#           cd php-{{php_version}} && 
+#           ./configure --prefix=/usr/local/php7 --with-config-file-path=/usr/local/php7/etc --enable-fpm  --enable-mysqlnd \
+#           --with-mysqli=mysqlnd --with-pdo-mysql=mysqlnd --with-mysql-sock=/usr/local/mysql/mysql.sock --with-libxml-dir --with-gd --with-jpeg-dir --with-png-dir \
+#           --with-freetype-dir --with-iconv-dir --with-zlib-dir --enable-soap --enable-ftp --enable-mbstring --enable-exif --with-pear --with-curl --with-openssl \
+#           --enable-bcmath --enable-sockets --with-gettext &&
+#           make -j 4 && make install
+
+- name: Copy PHP.service-Systemctl
+  shell: cd /usr/local/src/php-{{php_version}} && cp sapi/fpm/php-fpm.service /usr/lib/systemd/system/php-fpm.service
+
+- name: Copy PHP.ini
+  shell: cp /usr/local/src/php-{{php_version}}/php.ini-production /usr/local/php7/etc/php.ini
+  notify: restart php-fpm
+
+- name: Copy PHP-FPM.conf
+  shell: cp /usr/local/src/php-{{php_version}}/sapi/fpm/php-fpm.conf /usr/local/php7/etc/php-fpm.conf
+  notify: restart php-fpm
+
+- name: Copy PHP  www.conf file 
+  shell: cp /usr/local/php7/etc/php-fpm.d/www.conf.default /usr/local/php7/etc/php-fpm.d/www.conf
+
+- name: Start PHP-FPM
+  service: name=php-fpm state=started enabled=yes
+ 
+

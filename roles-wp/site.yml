@@ -1,0 +1,13 @@
+---
+- hosts: blog
+  remote_user: root
+ 
+  roles:
+    - role: common
+    - role: nginx
+      tags: ["nginx"]
+    - role: php
+      tags: ["php"]
+    - role: wordpress
+      tags: ["wp"]
+ 

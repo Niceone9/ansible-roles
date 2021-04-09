@@ -1,0 +1,13 @@
+---
+#- name: Dowlod wordpress.tar.gz
+#  get_url: url=https://wordpress.org/wordpress-{{wp_version}}.tar.gz dest=/usr/local/src/wordpress-{{wp_version}}.tar.gz
+  
+#- name: unzip wordpress
+#  unarchive: src=/usr/local/src/wordpress-{{wp_version}}.tar.gz dest=/var/www/html copy=no
+
+- name: Copy workdpress config file
+  template: src=wp-config.php dest=/var/www/html/wordpress
+
+- name: Change oner 
+  file: path=/var/www/html/wordpress owner=nobody group=nobody state=directory recurse=yes
+

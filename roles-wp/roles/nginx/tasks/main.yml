@@ -1,0 +1,28 @@
+---
+  - name: 拷贝nginx安装包--Copy nginx pakages
+    copy: src=nginx-{{nginx_version}}.tar.gz dest=/usr/local/src
+  
+  - name: 安装Nginx {{nginx_version}}--Install nginx 
+    shell: cd /usr/local/src &&
+           tar zxvf nginx-{{nginx_version}}.tar.gz &&
+           cd nginx-{{nginx_version}} &&
+           ./configure --prefix=/usr/local/nginx --user=nobody --group=nobody --with-http_ssl_module --with-http_stub_status_module --with-stream &&
+           make -j4 && make install
+
+  - name: 添加Nginx服务---Copy nginx service
+    copy: src=nginx.service  dest=/usr/lib/systemd/system/
+ 
+  - name: 创建虚拟主机目录----Touch vhost dir
+    file: dest=/usr/local/nginx/vconf/vhost state=directory
+  
+  - name: 拷贝Nginx主配置文件----Copy nginx zhu conf file
+    copy: src=nginx.conf dest=/usr/local/nginx/conf
+    notify: reload nginx
+
+  - name: 拷贝虚拟主机配置文件----Copy vhost conf file
+    template: src=wp.conf dest=/usr/local/nginx/vhost/
+    notify: reload nginx
+
+    
+  - name: 启动Nginx服务---systemctl start service 
+    service: name=nginx state=started enabled=yes
